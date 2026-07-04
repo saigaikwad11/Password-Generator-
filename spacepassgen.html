@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator - GH Raisoni</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== INTRO SCREEN ===== */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+            transition: opacity 1.5s ease-out;
+        }
+
+        .intro-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Space Background */
+        .space-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(10, 10, 30, 1) 0%, #000000 100%);
+        }
+
+        /* Stars */
+        .intro-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .intro-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Solar System Container */
+        .solar-system {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: systemZoom 12s ease-in-out forwards;
+        }
+
+        @keyframes systemZoom {
+            0% { transform: scale(0.3); opacity: 0; }
+            10% { transform: scale(0.5); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3.5); opacity: 0; }
+        }
+
+        /* Sun - Crystal Clear */
+        .sun {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, 
+                #ffffff 0%, 
+                #fff9e6 15%, 
+                #ffe680 30%, 
+                #ffb84d 50%, 
+                #ff9500 70%, 
+                #ff6b00 90%);
+            box-shadow: 
+                0 0 100px 50px rgba(255, 220, 100, 0.8),
+                0 0 200px 80px rgba(255, 180, 50, 0.5),
+                0 0 300px 120px rgba(255, 140, 0, 0.3),
+                inset -30px -30px 100px rgba(255, 150, 0, 0.3);
+            animation: sunPulse 4s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 
+                    0 0 100px 50px rgba(255, 220, 100, 0.8),
+                    0 0 200px 80px rgba(255, 180, 50, 0.5),
+                    0 0 300px 120px rgba(255, 140, 0, 0.3),
+                    inset -30px -30px 100px rgba(255, 150, 0, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 
+                    0 0 120px 60px rgba(255, 220, 100, 1),
+                    0 0 220px 100px rgba(255, 180, 50, 0.7),
+                    0 0 320px 140px rgba(255, 140, 0, 0.5),
+                    inset -30px -30px 100px rgba(255, 150, 0, 0.3);
+            }
+        }
+
+        /* Solar Corona */
+        .sun::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            border-radius: 50%;
+            background: radial-gradient(circle, transparent 60%, rgba(255, 200, 100, 0.4) 70%, transparent 80%);
+            animation: coronaPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes coronaPulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* Orbit Path */
+        .orbit {
+            position: absolute;
+            border: 2px dashed rgba(100, 150, 255, 0.25);
+            border-radius: 50%;
+        }
+
+        .orbit-path {
+            width: 750px;
+            height: 750px;
+        }
+
+        /* Earth Container on Orbit */
+        .earth-orbit {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: earthOrbit 8s linear forwards;
+        }
+
+        @keyframes earthOrbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Earth */
+        .earth-container {
+            position: absolute;
+            top: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+        }
+
+        .earth {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            background: linear-gradient(135deg, 
+                #0d47a1 0%, 
+                #1565c0 20%, 
+                #1976d2 40%, 
+                #2196f3 60%, 
+                #42a5f5 80%,
+                #64b5f6 100%);
+            box-shadow: 
+                inset -35px -35px 70px rgba(0, 0, 0, 0.6),
+                inset 25px 25px 50px rgba(255, 255, 255, 0.1),
+                0 0 70px 25px rgba(33, 150, 243, 0.5);
+            animation: earthSpin 6s linear infinite;
+            overflow: hidden;
+        }
+
+        @keyframes earthSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Continents */
+        .continent {
+            position: absolute;
+            background: linear-gradient(135deg, #2d5016, #4a7c2c, #2d5016);
+            opacity: 0.9;
+        }
+
+        .continent:nth-child(1) {
+            width: 65px;
+            height: 75px;
+            top: 18%;
+            left: 12%;
+            border-radius: 40% 30% 50% 40%;
+            clip-path: polygon(30% 0%, 100% 0%, 100% 70%, 60% 100%, 0% 80%, 0% 30%);
+        }
+
+        .continent:nth-child(2) {
+            width: 45px;
+            height: 65px;
+            top: 45%;
+            left: 22%;
+            border-radius: 30% 30% 50% 50%;
+            clip-path: polygon(50% 0%, 100% 20%, 90% 100%, 10% 90%, 0% 40%);
+        }
+
+        .continent:nth-child(3) {
+            width: 55px;
+            height: 75px;
+            top: 28%;
+            right: 32%;
+            border-radius: 40% 30% 60% 40%;
+            clip-path: polygon(40% 0%, 100% 10%, 90% 60%, 70% 100%, 30% 95%, 0% 70%, 10% 20%);
+        }
+
+        .continent:nth-child(4) {
+            width: 38px;
+            height: 32px;
+            top: 15%;
+            right: 28%;
+            border-radius: 30% 40% 50% 30%;
+        }
+
+        .continent:nth-child(5) {
+            width: 75px;
+            height: 60px;
+            top: 12%;
+            right: 8%;
+            border-radius: 40% 50% 40% 30%;
+            clip-path: polygon(0% 30%, 50% 0%, 100% 20%, 90% 70%, 60% 100%, 20% 90%, 0% 60%);
+        }
+
+        .continent:nth-child(6) {
+            width: 45px;
+            height: 38px;
+            bottom: 18%;
+            right: 12%;
+            border-radius: 40% 50% 50% 40%;
+        }
+
+        /* Clouds Layer */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
+                radial-gradient(ellipse at 60% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 35%),
+                radial-gradient(ellipse at 80% 70%, rgba(255, 255, 255, 0.45) 0%, transparent 38%);
+            animation: cloudDrift 10s linear infinite;
+        }
+
+        @keyframes cloudDrift {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Atmosphere Glow */
+        .atmosphere {
+            position: absolute;
+            width: 115%;
+            height: 115%;
+            top: -7.5%;
+            left: -7.5%;
+            border-radius: 50%;
+            background: radial-gradient(circle, transparent 60%, rgba(100, 180, 255, 0.4) 72%, transparent 85%);
+            animation: atmospherePulse 4s ease-in-out infinite;
+        }
+
+        @keyframes atmospherePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Welcome Text */
+        .welcome-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 5;
+            opacity: 0;
+            animation: welcomeFade 3s ease-in-out 8s forwards;
+        }
+
+        @keyframes welcomeFade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .welcome-text h1 {
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+        }
+
+        .welcome-text p {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 6px;
+            font-weight: 300;
+        }
+
+        /* Engineers Text */
+        .engineers-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 5;
+            opacity: 0;
+            animation: engineersFade 2s ease-in-out 11s forwards;
+        }
+
+        @keyframes engineersFade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            25% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+        }
+
+        .engineers-text h2 {
+            font-size: 52px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+        }
+
+        .engineers-text h1 {
+            font-size: 80px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b00, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in;
+        }
+
+        .main-content.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Space Background with Stars */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%);
+            z-index: -1;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        /* College Badge - Top Left */
+        .college-badge {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .college-badge:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .college-badge h3 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 20px;
+            letter-spacing: 4px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Main Content */
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .project-title {
+            font-size: 80px;
+            font-weight: 900;
+            letter-spacing: 12px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+            line-height: 1.2;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4)); }
+            to { filter: drop-shadow(0 0 40px rgba(0, 255, 136, 0.6)); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 20px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+        }
+
+        /* Cyber Security Images */
+        .cyber-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cyber-card {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .cyber-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .cyber-icon {
+            font-size: 90px;
+            z-index: 1;
+            filter: drop-shadow(0 5px 15px rgba(0, 212, 255, 0.4));
+        }
+
+        .cyber-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Password Generator Container */
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .password-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .password-display:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 35px rgba(0, 212, 255, 0.3);
+        }
+
+        #passwordOutput {
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            color: #00ff88;
+            word-break: break-all;
+            flex: 1;
+            min-height: 28px;
+            text-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            color: #0f0c29;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.3s;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .options {
+            margin-bottom: 35px;
+        }
+
+        .option-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+            letter-spacing: 1.5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            cursor: pointer;
+            box-shadow: 0 0 18px rgba(0, 212, 255, 0.7);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            cursor: pointer;
+            border: none;
+        }
+
+        .length-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .length-value {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            color: #0f0c29;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(8px);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #00ff88;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            color: #0f0c29;
+            border: none;
+            padding: 22px;
+            border-radius: 18px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(0, 255, 136, 0.6);
+        }
+
+        .strength-meter {
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .strength-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .strength-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s;
+            border-radius: 6px;
+            box-shadow: 0 0 25px currentColor;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            color: #0f0c29;
+            padding: 20px 35px;
+            border-radius: 15px;
+            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.3s;
+            z-index: 1000;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 16px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            margin-top: 80px;
+            padding: 40px 20px;
+            letter-spacing: 2px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .footer span {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .sun {
+                width: 180px;
+                height: 180px;
+            }
+
+            .orbit-path {
+                width: 500px;
+                height: 500px;
+            }
+
+            .earth-container {
+                width: 120px;
+                height: 120px;
+                top: -60px;
+            }
+
+            .welcome-text h1 {
+                font-size: 42px;
+                letter-spacing: 6px;
+            }
+
+            .welcome-text p {
+                font-size: 18px;
+                letter-spacing: 3px;
+            }
+
+            .engineers-text h2 {
+                font-size: 32px;
+            }
+
+            .engineers-text h1 {
+                font-size: 48px;
+                letter-spacing: 4px;
+            }
+
+            .project-title {
+                font-size: 42px;
+                letter-spacing: 6px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+                letter-spacing: 3px;
+            }
+            
+            .cyber-images {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .cyber-card {
+                padding: 15px;
+            }
+            
+            .cyber-icon {
+                font-size: 60px;
+            }
+
+            .cyber-label {
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .college-badge {
+                top: 15px;
+                left: 15px;
+                padding: 10px 20px;
+            }
+
+            .college-badge h3 {
+                font-size: 16px;
+                letter-spacing: 2px;
+            }
+
+            #passwordOutput {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <div class="space-bg"></div>
+        <div class="intro-stars" id="introStarsContainer"></div>
+        
+        <div class="welcome-text">
+            <h1>WELCOME</h1>
+            <p>TO THE FUTURE</p>
+        </div>
+
+        <div class="engineers-text">
+            <h2>Hello Guys,</h2>
+            <h1>WE ARE ENGINEERS</h1>
+        </div>
+
+        <div class="solar-system">
+            <!-- Sun -->
+            <div class="sun"></div>
+
+            <!-- Orbit Path -->
+            <div class="orbit orbit-path">
+                <div class="earth-orbit">
+                    <div class="earth-container">
+                        <div class="atmosphere"></div>
+                        <div class="earth">
+                            <div class="continent"></div>
+                            <div class="continent"></div>
+                            <div class="continent"></div>
+                            <div class="continent"></div>
+                            <div class="continent"></div>
+                            <div class="continent"></div>
+                            <div class="clouds"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Space Background -->
+        <div class="space-background"></div>
+        <div class="stars" id="starsContainer"></div>
+
+        <!-- College Badge -->
+        <div class="college-badge">
+            <h3>GH RAISONI COLLEGE</h3>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <h1 class="project-title">PASSWORD GENERATOR</h1>
+                <p class="subtitle">Secure • Strong • Reliable</p>
+            </div>
+
+            <!-- Cyber Security Images -->
+            <div class="cyber-images">
+                <div class="cyber-card">
+                    <div class="cyber-icon">🔐</div>
+                    <div class="cyber-label">Encryption</div>
+                </div>
+                <div class="cyber-card">
+                    <div class="cyber-icon">🛡️</div>
+                    <div class="cyber-label">Protection</div>
+                </div>
+                <div class="cyber-card">
+                    <div class="cyber-icon">🔒</div>
+                    <div class="cyber-label">Security</div>
+                </div>
+                <div class="cyber-card">
+                    <div class="cyber-icon">💻</div>
+                    <div class="cyber-label">Technology</div>
+                </div>
+            </div>
+
+            <!-- Password Generator -->
+            <div class="container">
+                <div class="password-display">
+                    <div id="passwordOutput">Click Generate to create password</div>
+                    <button class="copy-btn" onclick="copyPassword()">Copy</button>
+                </div>
+
+                <div class="options">
+                    <div class="option-group">
+                        <div class="length-display">
+                            <label>Password Length</label>
+                            <span class="length-value" id="lengthValue">16</span>
+                        </div>
+                        <input type="range" id="length" min="8" max="32" value="16" oninput="updateLength()">
+                    </div>
+
+                    <div class="option-group">
+                        <label>Include Characters</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="uppercase" checked>
+                                <label for="uppercase">Uppercase Letters (A-Z)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="lowercase" checked>
+                                <label for="lowercase">Lowercase Letters (a-z)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="numbers" checked>
+                                <label for="numbers">Numbers (0-9)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symbols" checked>
+                                <label for="symbols">Symbols (!@#$%^&*)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="generate-btn" onclick="generatePassword()">Generate Password</button>
+
+                <div class="strength-meter">
+                    <div class="strength-label">Password Strength: <span id="strengthText">Not Generated</span></div>
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill" style="width: 0%; background: #666;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                Made by <span>SAI AND TEAM</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Password Copied!</div>
+
+    <script>
+        // Generate Intro Stars
+        function createIntroStars() {
+            const container = document.getElementById('introStarsContainer');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'intro-star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Generate Main Content Stars
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Initialize
+        createIntroStars();
+        createStars();
+
+        // Transition from intro to main content
+        setTimeout(() => {
+            document.getElementById('introScreen').classList.add('fade-out');
+            document.getElementById('mainContent').classList.add('active');
+        }, 13000); // 13 seconds total for intro
+
+        // Update Length Display
+        function updateLength() {
+            const length = document.getElementById('length').value;
+            document.getElementById('lengthValue').textContent = length;
+        }
+
+        // Generate Password
+        function generatePassword() {
+            const length = parseInt(document.getElementById('length').value);
+            const useUppercase = document.getElementById('uppercase').checked;
+            const useLowercase = document.getElementById('lowercase').checked;
+            const useNumbers = document.getElementById('numbers').checked;
+            const useSymbols = document.getElementById('symbols').checked;
+
+            if (!useUppercase && !useLowercase && !useNumbers && !useSymbols) {
+                alert('Please select at least one character type!');
+                return;
+            }
+
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            let chars = '';
+            if (useUppercase) chars += uppercase;
+            if (useLowercase) chars += lowercase;
+            if (useNumbers) chars += numbers;
+            if (useSymbols) chars += symbols;
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            document.getElementById('passwordOutput').textContent = password;
+            updateStrength(password);
+        }
+
+        // Copy Password
+        function copyPassword() {
+            const password = document.getElementById('passwordOutput').textContent;
+            
+            if (password === 'Click Generate to create password') {
+                alert('Generate a password first!');
+                return;
+            }
+
+            navigator.clipboard.writeText(password).then(() => {
+                showToast();
+            });
+        }
+
+        // Show Toast
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Update Strength Meter
+        function updateStrength(password) {
+            let strength = 0;
+            const fill = document.getElementById('strengthFill');
+            const text = document.getElementById('strengthText');
+
+            // Length check
+            if (password.length >= 12) strength += 25;
+            else if (password.length >= 8) strength += 15;
+
+            // Character variety checks
+            if (/[a-z]/.test(password)) strength += 20;
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 20;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+
+            // Update display
+            fill.style.width = strength + '%';
+
+            if (strength < 40) {
+                fill.style.background = '#ff4444';
+                text.textContent = 'Weak';
+            } else if (strength < 70) {
+                fill.style.background = '#ffaa00';
+                text.textContent = 'Medium';
+            } else {
+                fill.style.background = '#00ff88';
+                text.textContent = 'Strong';
+            }
+        }
+
+        // Generate initial password after intro
+        setTimeout(() => {
+            generatePassword();
+        }, 13500);
+    </script>
+</body>
+</html>
